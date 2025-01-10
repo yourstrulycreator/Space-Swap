@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Space Swap 🚀
+
+A decentralized exchange interface built with Next.js, featuring a space-themed design and seamless token swapping experience.
+
+## Features
+
+- 🌌 Space-themed UI with animated starfield background
+- 💱 Token swapping interface with real-time price conversion
+- 🔄 Multi-chain support (ETH, Polygon, Sepolia, Arbitrum)
+- 🎨 Modern, responsive design with Tailwind CSS
+- ⚡ Built on Next.js for optimal performance
+- 🔌 Web3 integration ready
 
 ## Getting Started
 
-First, run the development server:
+First, install the dependencies:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then, run the development server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Technology Stack
 
-## Learn More
+- **Framework**: Next.js 14
+- **Styling**: Tailwind CSS
+- **Web3**: wagmi, viem
+- **State Management**: React Hooks
+- **Font**: Geist Sans & Mono
+- **Development**: TypeScript
 
-To learn more about Next.js, take a look at the following resources:
+## Development Roadmap
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [x] Basic UI implementation
+- [x] Price conversion logic
+- [x] Multi-token support
+- [ ] Wallet integration
+- [ ] Real token prices
+- [ ] Slippage settings
+- [ ] Transaction confirmation
+- [ ] Cross-chain swaps
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Contributing
 
-## Deploy on Vercel
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License - feel free to use this code for your own projects.
