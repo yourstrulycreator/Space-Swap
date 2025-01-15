@@ -121,6 +121,12 @@ export default function Home() {
     setShowWalletModal(false);
   };
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Safe to use localStorage here
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col items-center">
       <StarField />

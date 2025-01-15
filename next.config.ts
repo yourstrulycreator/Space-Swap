@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === 'production';
-const repoName = 'space-swap'; // Replace with your actual repository name
+const repoName = 'Space-Swap'; // Replace with your actual repository name
 
 const nextConfig: NextConfig = {
   output: 'export',
