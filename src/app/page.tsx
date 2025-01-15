@@ -1,6 +1,7 @@
 'use client';
 import StarField from '@/components/StarField';
 import { useState, useEffect } from 'react';
+import { useAccount, useBalance, useConnect, useDisconnect, Connector } from 'wagmi';
 
 const tabs = ['Swap', 'Pools', 'Farm', 'Bridge', 'Analytics', 'Governance'];
 const networks = [
@@ -15,6 +16,36 @@ const tokens = [
 ];
 
 export default function Home() {
+  const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect(); 
+  const { address, isConnected } = useAccount();
+  const { data: balance } = useBalance({
+    address,
+  });
+
+  const [usdBalance, setUsdBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (balance) {
+      // Determine the cryptocurrency based on the chain or wallet
+      const currency = balance.symbol.toLowerCase(); // Assuming balance.symbol gives the currency symbol
+
+      // Fetch the exchange rate for the identified cryptocurrency to USD
+      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${currency}&vs_currencies=usd`)
+        .then(response => response.json())
+        .then(data => {
+          const rate = data[currency]?.usd;
+          if (rate) {
+            // Convert balance.value from BigInt to Number
+            const balanceInNumber = Number(balance.value);
+            const convertedBalance = balanceInNumber * rate;
+            setUsdBalance(parseFloat(convertedBalance.toFixed(2)));
+          }
+        })
+        .catch(error => console.error('Error fetching exchange rate:', error));
+    }
+  }, [balance]);
+
   // State for form values
   const [fromAmount, setFromAmount] = useState<string>('');
   const [toAmount, setToAmount] = useState<string>('');
@@ -23,6 +54,7 @@ export default function Home() {
   const [fromNetwork, setFromNetwork] = useState(networks[0].name);
   const [toNetwork, setToNetwork] = useState(networks[0].name);
   const [error, setError] = useState<string>('');
+  const [showWalletModal, setShowWalletModal] = useState<boolean>(false);
 
   // Calculate conversion when fromAmount changes
   useEffect(() => {
@@ -79,15 +111,25 @@ export default function Home() {
     setToAmount(fromAmount);
   };
 
+  // Handle wallet connection
+  const handleConnectWallet = () => {
+    setShowWalletModal(true);
+  };
+
+  const handleSelectWallet = (connector: Connector) => {
+    connect({ connector });
+    setShowWalletModal(false);
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center">
       <StarField />
       
       {/* Navigation */}
-      <nav className="w-full px-8 py-4 flex justify-between items-center bg-black/20 backdrop-blur-sm">
-        <div className="text-2xl font-bold">Space Swap</div>
-        <div className="flex-1 flex justify-center">
-          <div className="flex gap-6 bg-black/30 px-6 py-2 rounded-xl border border-white/10">
+      <nav className="w-full px-4 py-4 flex flex-col sm:flex-row justify-between items-center bg-black/20 backdrop-blur-sm">
+        <div className="text-2xl font-bold mb-4 sm:mb-0">Space Swap</div>
+        <div className="flex-1 flex justify-center mb-4 sm:mb-0">
+          <div className="flex gap-4 sm:gap-6 bg-black/30 px-4 sm:px-6 py-2 rounded-xl border border-white/10">
             {tabs.map((tab) => (
               <button key={tab} className="text-gray-400 hover:text-white transition-colors">
                 {tab}
@@ -95,17 +137,52 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <button 
-          className="px-4 py-2 rounded-lg bg-[#1c2b21] hover:bg-[#243329] text-white transition-colors border border-[#2b4c34]"
-        >
-          Connect Wallet
-        </button>
+        {isConnected ? (
+          <div className="flex items-center gap-2 sm:gap-4 border border-[#2b4c34] px-2 sm:px-4 py-2 rounded-lg">
+            <span className="text-white">
+              {usdBalance !== null ? `$${usdBalance}` : `${balance?.formatted} ${balance?.symbol}`}
+            </span>
+            <span className="text-gray-400">{address?.slice(0, 6)}...{address?.slice(-4)}</span>
+            <button onClick={() => disconnect()} className="text-red-500">Disconnect</button>
+          </div>
+        ) : (
+          <button 
+            onClick={handleConnectWallet}
+            className="px-4 py-2 rounded-lg bg-[#1c2b21] hover:bg-[#243329] text-white transition-colors border border-[#2b4c34]"
+          >
+            Connect Wallet
+          </button>
+        )}
       </nav>
 
+      {/* Wallet Modal */}
+      {showWalletModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-black text-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-lg mb-4">Select Wallet</h2>
+            {connectors.map((connector) => (
+              <button
+                key={connector.id}
+                onClick={() => handleSelectWallet(connector)}
+                className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+              >
+                {connector.name}
+              </button>
+            ))}
+            <button
+              onClick={() => setShowWalletModal(false)}
+              className="mt-4 block w-full text-left px-4 py-2 bg-red-500 text-white hover:bg-red-600"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
-      <div className="w-full max-w-4xl text-center my-32 px-4">
-        <h1 className="text-6xl font-light mb-6">The Gateway<br />to DeFi</h1>
-        <p className="text-gray-400 text-lg">
+      <div className="w-full max-w-4xl text-center my-16 sm:my-32 px-4">
+        <h1 className="text-4xl sm:text-6xl font-light mb-4 sm:mb-6">The Gateway<br />to DeFi</h1>
+        <p className="text-gray-400 text-base sm:text-lg">
           All in one decentralized exchange for leveraging diversified funds<br />
           across ecosystems, with the speed of Ethereum
         </p>
@@ -129,9 +206,9 @@ export default function Home() {
       </div>
 
       {/* Updated Swap Section */}
-      <main className="flex-1 flex flex-col items-center justify-center w-full max-w-md mb-20">
-        <div className="bg-black/50 backdrop-blur-lg p-6 rounded-2xl w-full border border-white/5">
-          <div className="text-xl mb-6">Swap</div>
+      <main className="flex-1 flex flex-col items-center justify-center w-full max-w-md mb-10 sm:mb-20">
+        <div className="bg-black/50 backdrop-blur-lg p-4 sm:p-6 rounded-2xl w-full border border-white/5">
+          <div className="text-lg sm:text-xl mb-4 sm:mb-6">Swap</div>
           
           <div className="space-y-4">
             <div className="bg-black/30 p-4 rounded-xl">
